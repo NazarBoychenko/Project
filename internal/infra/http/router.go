@@ -7,47 +7,43 @@ import (
 	"server/internal/infra/http/controllers"
 )
 
-func Router(eventController *controllers.EventController, web *UseWeb) http.Handler {
+func Router(eventController *controllers.EventController) http.Handler {
 	router := chi.NewRouter()
 
 	// Health
+
 	router.Group(func(apiRouter chi.Router) {
 		apiRouter.Use(middleware.RedirectSlashes)
 
 		apiRouter.Route("/v1", func(apiRouter chi.Router) {
 
 			apiRouter.Group(func(apiRouter chi.Router) {
-				AddEventRoutes(&apiRouter, eventController)
-
-				apiRouter.Handle("/*", NotFoundBD())
+				apiRouter.Route("/events", func(apiRouter chi.Router) {
+					apiRouter.Get(
+						"/",
+						eventController.FindAll(),
+					)
+					apiRouter.Get(
+						"/{id}",
+						eventController.FindOne(),
+					)
+					apiRouter.Put(
+						"/update",
+						eventController.Update(),
+					)
+					apiRouter.Post(
+						"/insert",
+						eventController.Insert(),
+					)
+					apiRouter.Delete(
+						"/delete",
+						eventController.Delete(),
+					)
+				})
 			})
 			apiRouter.Handle("/*", NotFoundBD())
 		})
 	})
 
-	router.Group(func(updateRouter chi.Router) {
-		updateRouter.Use(middleware.RedirectSlashes)
-
-		updateRouter.Route("/updateInsert", func(updateRouter chi.Router) {
-			updateRouter.Get("/", web.UpdateInsert())
-			updateRouter.Post("/", web.UpdateInsert())
-
-			updateRouter.Handle("/*", NotFoundBD())
-		})
-	})
-
 	return router
-}
-
-func AddEventRoutes(router *chi.Router, eventController *controllers.EventController) {
-	(*router).Route("/events", func(apiRouter chi.Router) {
-		apiRouter.Get(
-			"/",
-			eventController.FindAll(),
-		)
-		apiRouter.Get(
-			"/{id}",
-			eventController.FindOne(),
-		)
-	})
 }

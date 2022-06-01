@@ -1,101 +1,85 @@
 package event
 
 import (
-	"github.com/upper/db/v4/adapter/postgresql"
-	"log"
+	"fmt"
+	"github.com/upper/db/v4"
 )
 
 type Repository interface {
 	FindAll() ([]Event, error)
 	FindOne(id int64) (*Event, error)
-	CheckMove(event *Event) error
+	Update(event *Event) (*Event, error)
+	Insert(event *Event) ([]Event, error)
+	Delete(event *Event) ([]Event, error)
 }
 
 type repository struct {
-	// Some internal data
+	sess db.Session
 }
 
-func NewRepository() Repository {
-	return &repository{}
+func NewRepository(sees db.Session) Repository {
+	return &repository{sess: sees}
 }
 
 func (r *repository) FindAll() ([]Event, error) {
-	sess, err := postgresql.Open(settings)
+	var event []Event
+	err := r.sess.Collection("event").Find().All(&event)
 	if err != nil {
-		log.Fatal("postgresql.Open: ", err)
+		fmt.Printf("r.sess.Collection.All:", err)
+		return nil, err
 	}
-	defer sess.Close()
-
-	events := sess.Collection("event")
-
-	eve := []Event{}
-	err = events.Find().All(&eve)
-	if err != nil {
-		log.Fatal("events.Find: ", err)
-	}
-
-	return eve, nil
+	return event, nil
 }
 
 func (r *repository) FindOne(id int64) (*Event, error) {
-	sess, err := postgresql.Open(settings)
+	var event Event
+	err := r.sess.Collection("event").Find(id).One(&event)
 	if err != nil {
-		log.Fatal("postgresql.Open: ", err)
+		fmt.Println("r.sess.Collection.One:", err)
+		return nil, err
 	}
-	defer sess.Close()
-
-	eventCollection := sess.Collection("event")
-	res := eventCollection.Find()
-	count, _ := res.Count()
-	if id <= int64(count) {
-		q := sess.SQL().SelectFrom("event").Where("\"event_id\" =?", id)
-		var event Event
-		if err := q.One(&event); err != nil {
-			log.Fatal("q.One:", err)
-			return nil, err
-		}
-		return &event, nil
-	} else {
-		return nil, nil
-	}
+	return &event, nil
 }
 
-func (r *repository) CheckMove(event *Event) error {
-	if event.EventId == 0 {
-		Insert(event)
-		return nil
-	} else {
-		Update(event)
-		return nil
+func (r *repository) Update(event *Event) (*Event, error) {
+	err := r.sess.Collection("event").Find(event.EventId).Update(event)
+	if err != nil {
+		fmt.Printf("r.sess.Collection:", err)
+		return nil, err
 	}
+	return event, nil
 }
 
-func Update(event *Event) {
-	sess, err := postgresql.Open(settings)
-	if err != nil {
-		log.Fatal("postgresql.Open: ", err)
-	}
-	defer sess.Close()
-
-	sess.SQL().Update("event").Set("title = ?", event.Title, "shortDescription = ?", event.ShortDescription, "description = ?", event.Description, "long_lat = ?", event.LongLat, "images = ?", event.Images, "preview = ?", event.Preview).
-		Where("\"event_id\" =?", event.EventId).Exec()
+func (r *repository) Insert(event *Event) ([]Event, error) {
+	err := r.sess.Collection("event").InsertReturning(event)
 
 	if err != nil {
-		log.Fatal("sess.Update:", err)
+		fmt.Println("r.sess.Collection.Insert:", err)
+		return nil, err
 	}
+
+	var eventAll []Event
+	err2 := r.sess.Collection("event").Find().All(&eventAll)
+	if err2 != nil {
+		fmt.Printf("r.sess.Collection:", err)
+		return nil, err2
+	}
+	return eventAll, nil
 }
 
-func Insert(event *Event) {
-	sess, err := postgresql.Open(settings)
-	if err != nil {
-		log.Fatal("postgresql.Open: ", err)
-	}
-	defer sess.Close()
+func (r *repository) Delete(event *Event) ([]Event, error) {
 
-	sess.SQL().InsertInto("event").Columns("title", "shortDescription", "description", "long_lat", "images", "preview").
-		Values(event.Title, event.ShortDescription, event.Description, event.LongLat, event.Images, event.Preview).Exec()
-
+	err := r.sess.Collection("event").Find(event.EventId).Delete()
 	if err != nil {
-		log.Fatal("sess.Insert:", err)
+		fmt.Printf("r.sess.Collection.Delete:", err)
+		return nil, err
 	}
+
+	var eventAll []Event
+	err2 := r.sess.Collection("event").Find().All(&eventAll)
+	if err2 != nil {
+		fmt.Printf("r.sess.Collection:", err)
+		return nil, err2
+	}
+	return eventAll, nil
 }

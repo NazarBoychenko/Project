@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/upper/db/v4/adapter/cockroachdb"
+	"github.com/upper/db/v4/adapter/postgresql"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -15,6 +17,19 @@ import (
 func main() {
 	exitCode := 0
 	ctx, cancel := context.WithCancel(context.Background())
+
+	//BD
+	var settings = cockroachdb.ConnectionURL{
+		Database: `postgres`,
+		Host:     `127.0.0.1:5432`,
+		User:     `postgres`,
+		Password: `postgres`,
+	}
+	sess, err := postgresql.Open(settings)
+	if err != nil {
+		fmt.Printf("postgresql.Open:", err)
+	}
+	defer sess.Close()
 
 	// Recover
 	defer func() {
@@ -37,20 +52,19 @@ func main() {
 	}()
 
 	// Event
-	eventRepository := event.NewRepository()
+	eventRepository := event.NewRepository(sess)
 	eventService := event.NewService(&eventRepository)
 	eventController := controllers.NewEventController(&eventService)
-	eventUserWeb := http.NewUseWeb(&eventService)
 
 	// HTTP Server
-	err := http.Server(
+	err2 := http.Server(
 		ctx,
 		http.Router(
-			eventController, eventUserWeb,
+			eventController,
 		),
 	)
 
-	if err != nil {
+	if err2 != nil {
 		fmt.Printf("http server error: %s", err)
 		exitCode = 2
 		return

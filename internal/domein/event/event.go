@@ -1,16 +1,7 @@
 package event
 
-import "github.com/upper/db/v4/adapter/postgresql"
-
-var settings = postgresql.ConnectionURL{
-	Database: `postgres`,
-	Host:     `127.0.0.1`,
-	User:     `postgres`,
-	Password: `postgres`,
-}
-
 type Event struct {
-	EventId          int64  `db:"event_id"`
+	EventId          int64  `db:"event_id,omitempty"`
 	Title            string `db:"title"`
 	ShortDescription string `db:"shortDescription"`
 	Description      string `db:"description"`
