@@ -1,0 +1,133 @@
+{
+	"info": {
+		"_postman_id": "52861b9e-b5a3-48ba-bdaa-39b8fff49136",
+		"name": "MyProject",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20974036"
+	},
+	"item": [
+		{
+			"name": "Events",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/v1/events",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"v1",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Events_Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "http://localhost:8081/v1/events/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"v1",
+						"events",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"EventId\": 1,\r\n    \"Title\": \"Весіля\",\r\n    \"ShortDescription\": \"Весяллля у Галини\",\r\n    \"Description\": \"Завтра о 12:00, відбудеться весілля у Галини\",\r\n    \"LongLat\": \"50.9326,50.2748\",\r\n    \"Images\": \"Фото_1\",\r\n    \"Preview\": \"Прив'ю_1\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/v1/events/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"v1",
+						"events",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Insert",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"EventId\": 8,\r\n    \"Title\": \"Весілля\",\r\n    \"ShortDescription\": \"Весяллля у Інни\",\r\n    \"Description\": \"Після завтра о 12:00, відбудеться весілля у Галини\",\r\n    \"LongLat\": \"50.9326,50.2748\",\r\n    \"Images\": \"Фото_1\",\r\n    \"Preview\": \"Прив'ю_1\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/v1/events/insert",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"v1",
+						"events",
+						"insert"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"EventId\": 8,\r\n    \"Title\": \"Весілля\",\r\n    \"ShortDescription\": \"Весяллля у Інни\",\r\n    \"Description\": \"Після завтра о 12:00, відбудеться весілля у Галини\",\r\n    \"LongLat\": \"50.9326,50.2748\",\r\n    \"Images\": \"Фото_1\",\r\n    \"Preview\": \"Прив'ю_1\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/v1/events/delete",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"v1",
+						"events",
+						"delete"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
